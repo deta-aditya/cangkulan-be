@@ -2,7 +2,10 @@ import express from 'express'
 import dotenv from 'dotenv'
 import createGameHandler from './handlers/createGame'
 import getGameHandler from './handlers/getGame'
+
+import checkInHandler from './webSocketHandlers/checkIn'
 import * as Database from './database'
+import * as WebSocket from './websocket'
 
 dotenv.config()
 
@@ -14,15 +17,22 @@ const database = Database.create({
   password: process.env.DB_PASSWORD || 'postgres',
 })
 
-const app = express()
+const webSocket = WebSocket.create({
+  port: process.env.WS_PORT ? Number(process.env.WS_PORT) : 8080,
+})
+
+webSocket.on('/games/check-in', checkInHandler)
+webSocket.listen()
+
+const httpServer = express()
 const port = process.env.PORT || 8000
 
-app.use(express.json())
+httpServer.use(express.json())
 
-app.get('/', (req, res) => res.send('Hello, world! This is Cangkulan server'))
-app.post('/games', createGameHandler(database))
-app.get('/games/:id', getGameHandler(database))
+httpServer.get('/', (req, res) => res.send('Hello, world! This is Cangkulan server'))
+httpServer.post('/games', createGameHandler(database))
+httpServer.get('/games/:id', getGameHandler(database))
 
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`)
+httpServer.listen(port, () => {
+  console.log(`[server]: HTTP server is running at http://localhost:${port}`)
 })
