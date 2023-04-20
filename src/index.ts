@@ -1,7 +1,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
-import createGameHandler from './handlers/createGame'
-import getGameHandler from './handlers/getGame'
+import createGameHandler from './httpHandlers/createGame'
+import getGameHandler from './httpHandlers/getGame'
 
 import checkInHandler from './webSocketHandlers/checkIn'
 import * as Database from './database'
