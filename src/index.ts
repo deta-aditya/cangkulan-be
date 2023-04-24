@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import createGameHandler from './httpHandlers/createGame'
 import getGameHandler from './httpHandlers/getGame'
 
-import checkInHandler from './webSocketHandlers/checkIn'
+import playerJoin from './webSocketHandlers/playerJoin'
 import * as Database from './database'
 import * as WebSocket from './websocket'
 
@@ -21,7 +21,7 @@ const webSocket = WebSocket.create({
   port: process.env.WS_PORT ? Number(process.env.WS_PORT) : 8080,
 })
 
-webSocket.on('/games/check-in', checkInHandler)
+webSocket.on('player-join', playerJoin)
 webSocket.listen()
 
 const httpServer = express()

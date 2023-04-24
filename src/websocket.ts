@@ -25,7 +25,7 @@ export function create(config: WebSocketConfig): WebSocketService {
 class DefaultWebSocketService implements WebSocketService {
   server: WebSocket.Server
   handlers: Map<string, WebSocketEventHandler>
-  
+
   constructor(server: WebSocket.Server) {
     this.server = server
     this.handlers = new Map()
@@ -34,7 +34,7 @@ class DefaultWebSocketService implements WebSocketService {
   on(event: string, handler: WebSocketEventHandler) {
     this.handlers.set(event, handler)
   }
-  
+
   broadcast(data: Sendable) {
     this.server.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
