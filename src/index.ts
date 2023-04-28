@@ -8,6 +8,7 @@ import * as Database from './database'
 import * as WebSocket from './websocket'
 import * as Cache from './cache'
 import * as Receptionist from './receptionist'
+import * as GameFactory from './games/gameFactory'
 import * as FindGameById from './games/findGameById'
 import playerLeave from './webSocketHandlers/playerLeave'
 
@@ -28,7 +29,9 @@ const webSocket = WebSocket.create({
 })
 
 const receptionist = Receptionist.create(webSocket)
-const findGameById = FindGameById.resolve(database, cache)
+
+const gameFactory = GameFactory.create()
+const findGameById = FindGameById.resolve(database, cache, gameFactory)
 
 webSocket.on('player-join', playerJoin(cache, receptionist, findGameById))
 webSocket.on('player-leave', playerLeave(cache, receptionist, findGameById))
@@ -40,7 +43,7 @@ const port = process.env.PORT || 8000
 httpServer.use(express.json())
 
 httpServer.get('/', (req, res) => res.send('Hello, world! This is Cangkulan server'))
-httpServer.post('/games', createGameHandler(cache, database))
+httpServer.post('/games', createGameHandler(cache, database, gameFactory))
 httpServer.get('/games/:id', getGameHandler(findGameById))
 
 httpServer.listen(port, () => {

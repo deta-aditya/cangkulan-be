@@ -1,37 +1,39 @@
-type ResultState<T, U> =
-  | { kind: 'success', data: T }
-  | { kind: 'failure', failure: U }
+export type Result<T, U> =
+  | Success<T>
+  | Failure<U>
 
-export class Result<TData, TFailure> {
-  value: ResultState<TData, TFailure>
+interface Success<T> {
+  kind: 'success'
+  data: T
+}
 
-  private constructor(value: ResultState<TData, TFailure>) {
-    this.value = value
+interface Failure<T> {
+  kind: 'failure'
+  reason: T
+}
+
+export function Success<T>(data: T): Success<T> {
+  return { kind: 'success', data }
+}
+
+export function Failure<T>(reason: T): Failure<T> {
+  return { kind: 'failure', reason }
+}
+
+export function isSuccess<T, U>(result: Result<T, U>): result is Success<T> {
+  return result.kind === 'success'
+}
+
+export function isFailure<T, U>(result: Result<T, U>): result is Failure<U> {
+  return result.kind === 'failure'
+}
+
+export function when<T, U, R>(result: Result<T, U>, cases: {
+  success: (data: T) => R,
+  failure: (reason: U) => R
+}) {
+  if (isSuccess(result)) {
+    return cases.success(result.data)
   }
-
-  static success<TNewData, TNewFailure>(data: TNewData) {
-    return new Result<TNewData, TNewFailure>({ kind: 'success', data })
-  }
-
-  static failure<TNewData, TNewFailure>(failure: TNewFailure) {
-    return new Result<TNewData, TNewFailure>({ kind: 'failure', failure })
-  }
-
-  then<TNewData>(func: (value: Result<TData, TFailure>) => Result<TNewData, TFailure>): Result<TNewData, TFailure> {
-    switch (this.value.kind) {
-      case "success":
-        return func(this)
-      case "failure":
-        return Result.failure(this.value.failure)
-    }
-  }
-
-  when<TReturn>(cases: { success: (data: TData) => TReturn; failure: (failure: TFailure) => TReturn }) {
-    switch (this.value.kind) {
-      case "success":
-        return cases.success(this.value.data)
-      case "failure":
-        return cases.failure(this.value.failure)
-    }
-  }
+  return cases.failure(result.reason)
 }

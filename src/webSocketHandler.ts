@@ -1,6 +1,5 @@
-import { ZodType, infer as ZodInfer, ZodError } from "zod";
+import { ZodError } from "zod";
 import { WebSocketClient } from "./websocket";
-import { Result } from "./result";
 
 type WebSocketHandlerError =
   | ParseRequestError
@@ -63,16 +62,6 @@ export function InternalError(error: Error): WebSocketHandlerError {
 
 export function UnknownError(reason: string): WebSocketHandlerError {
   return { kind: 'unknown-error', reason }
-}
-
-type ParseObjectSuccessData<T> = ZodInfer<ZodType<T>>
-
-export function parseObject<T>(validator: ZodType<T>, data: object): Result<ParseObjectSuccessData<T>, WebSocketHandlerError> {
-  const result = validator.safeParse(data);
-  if (result.success) {
-    return Result.success(result.data);
-  }
-  return Result.failure(ParseRequestError(result.error));
 }
 
 export function sendError(client: WebSocketClient, errorValue: WebSocketHandlerError) {

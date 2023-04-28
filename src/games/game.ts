@@ -1,18 +1,20 @@
 import { DbRowGame } from "./schemas"
 
-interface IGame {
+export interface Game {
   addPlayer(playerId: number): void
   removePlayer(playerId: number): void
   readonly canStartGame: boolean
   readonly forDbRow: DbRowGame
 }
 
+export type NewGame = Pick<Game, 'forDbRow'>
+
 interface Config {
   cardsPerPlayer: number
   numberOfPlayers: number
 }
 
-class Game implements IGame {
+export class GameImpl implements Game {
   id: number
   config: Config
   joinedPlayers: Set<number>
@@ -37,10 +39,6 @@ class Game implements IGame {
     }
   }
 
-  static fromDbRow(schema: DbRowGame) {
-    return new Game(schema.id, schema.config, new Set(schema.state.joinedPlayers))
-  }
-
   addPlayer(playerId: number): void {
     this.joinedPlayers.add(playerId)
   }
@@ -50,4 +48,20 @@ class Game implements IGame {
   }
 }
 
-export default Game
+export class NewGameImpl implements NewGame {
+  config: Config
+
+  constructor(config: Config) {
+    this.config = config
+  }
+
+  get forDbRow() {
+    return {
+      id: 0,
+      config: this.config,
+      state: {
+        joinedPlayers: [],
+      }
+    }
+  }
+}
