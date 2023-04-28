@@ -1,31 +1,25 @@
 import { Request, Response } from "express"
-import { Database, EmptyRowError } from "../database"
+import { FindGameById, FindGameByIdErrors } from "../games/findGameById";
 
-interface Game {
-  id: number
-  config: {
-    cardsPerPlayer: number;
-    numberOfPlayers: number;
-  }
-}
-
-const getGameHandler = (database: Database) => async (req: Request, res: Response) => {
+const getGameHandler = (findGameById: FindGameById) => async (req: Request, res: Response) => {
   const { params } = req
   const gameId = Number(params.id)
+  if (Number.isNaN(gameId)) {
+    res.status(422).json({ message: 'id must be a number!' })
+    return
+  }
 
   try {
-    const result = await database.queryOne<Game, [number]>(
-      'SELECT id, config FROM games WHERE id = $1', 
-      [gameId],
-    )
-    res.status(200).json(result)
+    const game = await findGameById(gameId)
+    res.json(game)
   } catch (error) {
-    if (error instanceof EmptyRowError) {
-      res.status(404).json({ message: `Game with id ${gameId} does not exist!` })
-      return
-    }
-    res.status(500).json(error)
-    return;
+    const { status, message } = FindGameByIdErrors.when(error, {
+      corruptGameData: (id, reason) => ({ status: 500, message: `Game with id ${id} is corrupt! Reason: ${reason}` }),
+      gameNotFound: id => ({ status: 404, message: `Game with id ${id} does not exist!` }),
+      databaseError: error => ({ status: 500, message: `Error in database: ${error.message}` }),
+      _: () => ({ status: 500, message: `Unknown error: ${String(error)}` })
+    })
+    res.status(status).json({ message })
   }
 }
 
