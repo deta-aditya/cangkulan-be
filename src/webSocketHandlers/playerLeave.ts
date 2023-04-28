@@ -6,7 +6,6 @@ import { FindGameById, FindGameByIdErrors } from "../games/findGameById";
 import { Receptionist } from "../receptionist";
 
 import * as WebSocketEvents from "../webSocketEvents";
-import { Game } from "../games/schemas";
 
 const PlayerLeaveRequestSchema = z.object({
   gameId: z.number(),
@@ -27,9 +26,9 @@ const playerLeave = (cache: Cache, receptionist: Receptionist, findGameById: Fin
 
   try {
     const game = await findGameById(gameId)
-    const newGameState = removePlayerFromState(playerLeaveRequest.playerId, game)
+    game.removePlayer(playerLeaveRequest.playerId)
 
-    const cacheSetResult = await cache.set(gameCacheKey, newGameState)
+    const cacheSetResult = await cache.set(gameCacheKey, game.forDbRow)
     if (!cacheSetResult.success) {
       sendError(client, CacheError(`Can't set value of key ${gameCacheKey}`))
       return
@@ -39,9 +38,9 @@ const playerLeave = (cache: Cache, receptionist: Receptionist, findGameById: Fin
       gameId: playerLeaveRequest.gameId,
       playerId: playerLeaveRequest.playerId,
     })
-    receptionist.sendToRoom(gameCacheKey, announcementBody)
 
     const roomName = gameCacheKey
+    receptionist.sendToRoom(roomName, announcementBody)
     receptionist.removeGuestFromRoom(roomName, client)
   } catch (error) {
     FindGameByIdErrors.when(error, {
@@ -51,20 +50,6 @@ const playerLeave = (cache: Cache, receptionist: Receptionist, findGameById: Fin
       _: () => sendError(client, UnknownError(error instanceof Error ? error.stack || error.message : String(error)))
     })
   }
-}
-
-// TODO: this kind of function should be carefully put to prevent invalid state
-const removePlayerFromState = (playerId: number, game: Game) => {
-  const newGame: Game = {
-    ...game,
-    state: {
-      ...game.state,
-      joinedPlayers: game.state.joinedPlayers
-        .filter(joinedPlayerId => joinedPlayerId !== playerId)
-    }
-  }
-
-  return newGame
 }
 
 export default playerLeave

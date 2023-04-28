@@ -32,12 +32,16 @@ class InMemoryReceptionist implements Receptionist {
 
   sendToRoom(room: string, sendable: Sendable) {
     const targetRooms = this.rooms[room]
-    this.webSocket.broadcastWhen(client => {
-      return targetRooms.map(room => room.id).includes(client.id)
-    }, sendable)
+    if (targetRooms) {
+      this.webSocket.broadcastWhen(client => {
+        return targetRooms.map(room => room.id).includes(client.id)
+      }, sendable)
+    }
   }
 
   removeGuestFromRoom(room: string, guest: Guest) {
-    this.rooms[room] = this.rooms[room].filter(currentGuest => currentGuest !== guest)
+    if (room in this.rooms) {
+      this.rooms[room] = this.rooms[room].filter(currentGuest => currentGuest !== guest)
+    }
   }
 }

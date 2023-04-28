@@ -4,7 +4,6 @@ import { CorruptDataError, CacheError, ParseRequestError, sendError, NotFoundErr
 import { Cache } from "../cache";
 import { Receptionist } from "../receptionist";
 import { FindGameById, FindGameByIdErrors } from "../games/findGameById";
-import { Game } from "../games/schemas";
 
 import * as WebSocketEvents from "../webSocketEvents";
 
@@ -26,9 +25,9 @@ const playerJoin = (cache: Cache, receptionist: Receptionist, findGameById: Find
 
   try {
     const game = await findGameById(gameId)
-    const newGameState = addPlayerToState(playerJoinRequest.playerId, game)
+    game.addPlayer(playerJoinRequest.gameId)
 
-    const cacheSetResult = await cache.set(gameCacheKey, newGameState)
+    const cacheSetResult = await cache.set(gameCacheKey, game.forDbRow)
     if (!cacheSetResult.success) {
       sendError(client, CacheError(`Can't set value of key ${gameCacheKey}`))
       return
@@ -37,13 +36,12 @@ const playerJoin = (cache: Cache, receptionist: Receptionist, findGameById: Find
     const roomName = gameCacheKey
     receptionist.setGuestToRoom(roomName, client)
 
-    const canStartGame = newGameState.config.numberOfPlayers === newGameState.state.joinedPlayers.length;
     const announcementBody = WebSocketEvents.playerJoined({
       gameId: playerJoinRequest.gameId,
       playerId: playerJoinRequest.playerId,
-      canStartGame,
+      canStartGame: game.canStartGame,
     })
-    receptionist.sendToRoom(gameCacheKey, announcementBody)
+    receptionist.sendToRoom(roomName, announcementBody)
   } catch (error) {
     // TODO: find out how to merge "when"s. In the future, there will be a lot of "when"s!
     FindGameByIdErrors.when(error, {
@@ -53,27 +51,6 @@ const playerJoin = (cache: Cache, receptionist: Receptionist, findGameById: Find
       _: () => sendError(client, UnknownError(error instanceof Error ? error.stack || error.message : String(error)))
     })
   }
-}
-
-// TODO: this kind of function should be carefully put to prevent invalid state
-const addPlayerToState = (playerId: number, game: Game) => {
-  const isPlayerJoined = game.state.joinedPlayers.some(joinedPlayerId => playerId === joinedPlayerId);
-  if (isPlayerJoined) {
-    return game
-  }
-
-  const newGameState: Game = {
-    ...game,
-    state: {
-      ...game.state,
-      joinedPlayers: [
-        ...game.state.joinedPlayers,
-        playerId,
-      ]
-    }
-  }
-
-  return newGameState
 }
 
 export default playerJoin

@@ -13,6 +13,7 @@ export const DbRowGameSchema = z.object({
   })
 })
 export type Game = z.infer<typeof DbRowGameSchema>
+export type DbRowGame = z.infer<typeof DbRowGameSchema>
 
 export const DEFAULT_GAME_STATE = {
   joinedPlayers: [],

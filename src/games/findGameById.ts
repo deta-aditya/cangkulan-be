@@ -1,10 +1,9 @@
-import { z } from "zod";
-
 import { Cache } from "../cache"
 import { Database, EmptyRowError } from "../database"
 import { rejectify } from "../promise";
 import * as Errors from "./errors";
-import { DbRowGameSchema, Game } from "./schemas";
+import Game from "./game";
+import { DbRowGameSchema, DbRowGame } from "./schemas";
 
 const CorruptGameData = rejectify(Errors.CorruptGameData)
 const GameNotFound = rejectify(Errors.GameNotFound)
@@ -17,22 +16,22 @@ const findGameById = (database: Database, cache: Cache) => async (id: number): P
   const gameCacheKey = String(id)
   const cacheGetResult = await cache.get(gameCacheKey)
   if (cacheGetResult.success) {
-    const gameState = DbRowGameSchema.safeParse(cacheGetResult.value)
-    if (gameState.success) {
-      return gameState.data
+    const gameFromCache = DbRowGameSchema.safeParse(cacheGetResult.value)
+    if (gameFromCache.success) {
+      return Game.fromDbRow(gameFromCache.data)
     }
   }
 
   try {
-    const result = await database.queryOne<Game, [number]>(
+    const result = await database.queryOne<DbRowGame, [number]>(
       'SELECT id, config, state FROM games WHERE id = $1',
       [id],
     )
-    const gameState = DbRowGameSchema.safeParse(result)
-    if (gameState.success) {
-      return gameState.data
+    const gameFromDatabase = DbRowGameSchema.safeParse(result)
+    if (gameFromDatabase.success) {
+      return Game.fromDbRow(gameFromDatabase.data)
     }
-    return CorruptGameData(id, gameState.error.message)
+    return CorruptGameData(id, gameFromDatabase.error.message)
   } catch (error) {
     if (error instanceof EmptyRowError) {
       return GameNotFound(id)
