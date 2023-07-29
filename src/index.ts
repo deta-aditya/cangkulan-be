@@ -11,6 +11,13 @@ import * as Receptionist from './receptionist'
 import * as GameFactory from './games/gameFactory'
 import * as FindGameById from './games/findGameById'
 import playerLeave from './webSocketHandlers/playerLeave'
+import { Rooms } from './rooms'
+import { pureFindGameById } from './games/findGameByIdV2'
+import { DbRowGame } from './games/schemas'
+import { purePlayerJoin } from './webSocketHandlers/playerJoinV2'
+import { createGetGameFromDb } from './games/getGameFromDb'
+import { createGetGameFromCache } from './games/getGameFromCache'
+import { createSetGameToCache } from './games/setGameToCache'
 
 dotenv.config()
 
@@ -25,7 +32,13 @@ const database = Database.create({
 const cache = Cache.create()
 
 const webSocket = WebSocket.create({
-  port: process.env.WS_PORT ? Number(process.env.WS_PORT) : 8080,
+  config: {
+    port: process.env.WS_PORT ? Number(process.env.WS_PORT) : 8080,
+  }, 
+  getRooms: () => Promise.resolve(rooms), 
+  updateRooms: (newRooms: Rooms) => {
+    rooms = newRooms; return Promise.resolve()  
+  },
 })
 
 const receptionist = Receptionist.create(webSocket)
@@ -33,7 +46,19 @@ const receptionist = Receptionist.create(webSocket)
 const gameFactory = GameFactory.create()
 const findGameById = FindGameById.resolve(database, cache, gameFactory)
 
-webSocket.on('player-join', playerJoin(cache, receptionist, findGameById))
+let rooms: Rooms = {}
+
+webSocket.on('player-join-old', playerJoin(cache, receptionist, findGameById))
+
+webSocket.onPure('player-join', purePlayerJoin({ 
+  findGameById: pureFindGameById({ 
+    getGameFromCache: createGetGameFromCache(cache),
+    getGameFromDb: createGetGameFromDb(database),
+    setGameToCache: createSetGameToCache(cache),
+  }), 
+  updateGame: () => Promise.resolve(),
+}))
+
 webSocket.on('player-leave', playerLeave(cache, receptionist, findGameById))
 webSocket.listen()
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { WebSocketEventHandler } from "../websocket";
-import { CorruptDataError, CacheError, ParseRequestError, sendError, NotFoundError, InternalError, UnknownError } from "../webSocketHandler";
+import { CorruptDataError, CacheError, ParseRequestError, sendError, NotFoundError, InternalError, UnknownError } from "../webSocketHandlerError";
 import { Cache } from "../cache";
 import { Receptionist } from "../receptionist";
 import { FindGameById, FindGameByIdErrors } from "../games/findGameById";
@@ -20,12 +20,12 @@ const playerJoin = (cache: Cache, receptionist: Receptionist, findGameById: Find
   }
 
   const playerJoinRequest = dataParseResult.data
-  const gameId = playerJoinRequest.gameId
-  const gameCacheKey = String(playerJoinRequest.gameId)
+  const { gameId, playerId } = playerJoinRequest
+  const gameCacheKey = String(gameId)
 
   try {
     const game = await findGameById(gameId)
-    game.addPlayer(playerJoinRequest.gameId)
+    game.addPlayer(playerId)
 
     const cacheSetResult = await cache.set(gameCacheKey, game.forDbRow)
     if (!cacheSetResult.success) {
@@ -37,8 +37,8 @@ const playerJoin = (cache: Cache, receptionist: Receptionist, findGameById: Find
     receptionist.setGuestToRoom(roomName, client)
 
     const announcementBody = WebSocketEvents.playerJoined({
-      gameId: playerJoinRequest.gameId,
-      playerId: playerJoinRequest.playerId,
+      gameId,
+      playerId,
       canStartGame: game.canStartGame,
     })
     receptionist.sendToRoom(roomName, announcementBody)

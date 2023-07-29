@@ -1,7 +1,7 @@
 import { ZodError } from "zod";
 import { WebSocketClient } from "./websocket";
 
-type WebSocketHandlerError =
+export type WebSocketHandlerError =
   | ParseRequestError
   | CorruptDataError
   | CacheError

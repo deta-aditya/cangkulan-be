@@ -17,3 +17,4 @@ export const DbRowGameSchema = z.object({
 })
 export type Game = z.infer<typeof DbRowGameSchema>
 export type DbRowGame = z.infer<typeof DbRowGameSchema>
+export type PureGame = z.infer<typeof DbRowGameSchema>

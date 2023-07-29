@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Cache } from "../cache";
 import { WebSocketEventHandler } from "../websocket";
-import { CacheError, CorruptDataError, InternalError, NotFoundError, ParseRequestError, UnknownError, sendError } from "../webSocketHandler";
+import { CacheError, CorruptDataError, InternalError, NotFoundError, ParseRequestError, UnknownError, sendError } from "../webSocketHandlerError";
 import { FindGameById, FindGameByIdErrors } from "../games/findGameById";
 import { Receptionist } from "../receptionist";
 
