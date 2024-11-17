@@ -62,7 +62,7 @@ export abstract class Result<T, U> {
     U extends Parameters<T>, 
     V,
   >(func: T, ...params: LiftParams<U, V>): ReturnType<T> {
-    return this.collectArray(params).bind(func) as ReturnType<T>;
+    return this.collectArray(params).bind(params => func(...params)) as ReturnType<T>;
   }
 
   static try<T>(errorneusProcess: () => T): Result<T, unknown> {

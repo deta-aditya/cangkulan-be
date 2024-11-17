@@ -2,7 +2,7 @@ import { Result } from "@/common/result";
 import { GameErrors } from "./game-error";
 
 export class NumberOfPlayers {
-  private constructor(
+  constructor(
     readonly value: number
   ) {}
 
@@ -10,11 +10,11 @@ export class NumberOfPlayers {
 
   static create(value: number) {
     return Result.validate(
-      value > 0 && value <= this.MAXIMUM_VALUE, 
+      value > 0 && value <= NumberOfPlayers.MAXIMUM_VALUE, 
       () => new NumberOfPlayers(value),
       () => GameErrors.invalidNumberOfPlayers({
         actualValue: value,
-        maximumValue: this.MAXIMUM_VALUE,
+        maximumValue: NumberOfPlayers.MAXIMUM_VALUE,
       }),
     );
   }

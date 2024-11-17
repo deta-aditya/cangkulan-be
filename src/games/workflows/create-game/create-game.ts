@@ -1,7 +1,7 @@
-import { GameWriteDataGateway } from "@/games/contracts/game-write-data-gateway";
+import { GameWriteRepository } from "@/games/contracts/game-write-repository";
 import { CardsPerPlayer } from "@/games/models/cards-per-player";
 import { NumberOfPlayers } from "@/games/models/number-of-players";
-import { Game } from "@/games/models/game/game";
+import { Game } from "@/games/models/game";
 import { Result } from "@/common/result";
 
 import { CreateGameRequest } from "./create-game.request";
@@ -9,7 +9,7 @@ import { CreateGameResponse } from "./create-game.response";
 
 export class CreateGame {
   constructor(
-    private writeDataGateway: GameWriteDataGateway
+    private writeRepository: GameWriteRepository
   ) {}
 
   async execute(request: CreateGameRequest): Promise<CreateGameResponse> {
@@ -20,7 +20,7 @@ export class CreateGame {
       .liftBind(Game.initialize, cardsPerPlayer, numberOfPlayers)
       .toPromise();
 
-    const gameId = await this.writeDataGateway.saveGame(game);
+    const gameId = await this.writeRepository.saveGame(game);
 
     return { 
       gameId,

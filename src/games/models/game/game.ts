@@ -6,8 +6,8 @@ import { GameState, GameStates } from "./game.state";
 import { GameAction } from "./game.action";
 
 export class Game {
-  private constructor(
-    private state: GameState
+  constructor(
+    public readonly state: GameState
   ) {}
 
   static TOTAL_CARDS = 52;
@@ -17,7 +17,7 @@ export class Game {
     numberOfPlayers: NumberOfPlayers,
   ): Result<Game, GameError> { 
     return Result.validate(
-      cardsPerPlayer.value * numberOfPlayers.value <= this.TOTAL_CARDS,
+      cardsPerPlayer.value * numberOfPlayers.value <= Game.TOTAL_CARDS,
       () => new Game(
         GameStates.waitingForPlayers({
           cardsPerPlayer,
