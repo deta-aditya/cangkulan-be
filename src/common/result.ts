@@ -16,6 +16,10 @@ export abstract class Result<T, U> {
   abstract isOk(): this is Ok<T, U>;
   abstract isErr(): this is Err<T, U>;
   abstract toPromise(): Promise<T>;
+  abstract unwrap(): T;
+  abstract unwrapErr(): U;
+  abstract unwrapOrElse(ifErr: () => T): T;
+  abstract unwrapErrOrElse(ifOk: () => U): U;
 
   static ok<T, U>(value: T): Result<T, U> {
     return new Ok<T, U>(value);
@@ -74,11 +78,11 @@ export abstract class Result<T, U> {
     }
   }
 
-  static validate<T, U>(condition: boolean, okValue: () => T, errValue: () => U) {
+  static validate<T, U>(condition: boolean, ifTrue: () => T, ifFalse: () => U) {
     if (condition) {
-      return Result.ok<T, U>(okValue());
+      return Result.ok<T, U>(ifTrue());
     }
-    return Result.err<T, U>(errValue());
+    return Result.err<T, U>(ifFalse());
   }
 }
 
@@ -112,6 +116,22 @@ class Ok<T, U> implements Result<T, U> {
   toPromise(): Promise<T> {
     return Promise.resolve(this.value);
   }
+
+  unwrap(): T {
+    return this.value;
+  }
+
+  unwrapErr(): U {
+    throw new Error('This Result value is not Err!');
+  }
+
+  unwrapErrOrElse(ifOk: () => U): U {
+    return ifOk();
+  }
+
+  unwrapOrElse(ifErr: () => T): T {
+    return this.value;
+  }
 }
 
 class Err<T, U> implements Result<T, U> {
@@ -143,5 +163,21 @@ class Err<T, U> implements Result<T, U> {
 
   toPromise(): Promise<T> {
     return Promise.reject(this.value);
+  }
+
+  unwrap(): T {
+    throw new Error('This Result value is not Ok!');
+  }
+  
+  unwrapErr(): U {
+    return this.value;
+  }
+
+  unwrapErrOrElse(ifOk: () => U): U {
+    return this.value;
+  }
+
+  unwrapOrElse(ifErr: () => T): T {
+    return ifErr();
   }
 }

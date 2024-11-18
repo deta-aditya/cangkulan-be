@@ -7,6 +7,9 @@ export abstract class Option<T> {
   abstract isNone(): this is None<T>;
   abstract toResult<U>(ifNone: () => U): Result<T, U>;
   abstract bind<U>(binder: (value: T) => Option<U>): Option<U>;
+  abstract unwrap(): T;
+  abstract unwrapOrElse(ifNone: () => T): T;
+  abstract unwrapOrNull(): T | null;
 
   static some<T>(value: T) {
     return new Some(value);
@@ -30,9 +33,9 @@ export abstract class Option<T> {
     });
   }
 
-  static validate<T>(condition: boolean, value: () => T) {
+  static validate<T>(condition: boolean, ifTrue: () => T) {
     if (condition) {
-      return Option.some(value());
+      return Option.some(ifTrue());
     }
     return Option.none<T>();
   }
@@ -64,6 +67,18 @@ class Some<T> implements Option<T> {
   toResult<U>(): Result<T, U> {
     return Result.ok<T, U>(this.value);
   }
+
+  unwrap(): T {
+    return this.value;
+  }
+
+  unwrapOrElse(): T {
+    return this.value;
+  }
+
+  unwrapOrNull(): T | null {
+    return this.value;
+  }
 }
 
 class None<T> implements Option<T> {
@@ -89,5 +104,17 @@ class None<T> implements Option<T> {
 
   toResult<U>(ifNone: () => U): Result<T, U> {
     return Result.err(ifNone());
+  }
+
+  unwrap(): T {
+    throw new Error('This Option value is not Some!');
+  }
+
+  unwrapOrElse(ifNone: () => T): T {
+    return ifNone();
+  }
+
+  unwrapOrNull(): T | null {
+    return null;
   }
 }
