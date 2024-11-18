@@ -5,7 +5,12 @@ import {
 } from 'vitest/config';
 
 const config = defineConfig({
-  test: configDefaults,
+  test: {
+    ...configDefaults,
+    coverage: {
+      reporter: ['html'],
+    }
+  },
   plugins: [tsconfigPaths()],
 });
 
