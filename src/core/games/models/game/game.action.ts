@@ -1,4 +1,4 @@
-import { hasNothing, Infer, unionOf } from "@/common/union";
+import { hasNothing, Infer, unionOf } from "@/core/common/union";
 
 export const GameActions = unionOf({
   addPlayer: hasNothing(),

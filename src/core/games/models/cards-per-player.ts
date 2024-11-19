@@ -1,5 +1,5 @@
 import { GameErrors } from "./game-error";
-import { Result } from "@/common/result";
+import { Result } from "@/core/common/result";
 
 export class CardsPerPlayer {
   constructor(

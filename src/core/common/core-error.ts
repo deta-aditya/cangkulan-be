@@ -1,4 +1,4 @@
-import { GameError } from "@/games/models/game-error";
+import { GameError } from "@/core/games/models/game-error";
 import { having, Infer, unionOf } from "./union";
 
 export const CoreErrors = unionOf({

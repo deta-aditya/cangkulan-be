@@ -1,4 +1,4 @@
-import { Result } from "@/common/result";
+import { Result } from "@/core/common/result";
 import { CardsPerPlayer } from "../cards-per-player";
 import { GameError, GameErrors } from "../game-error";
 import { NumberOfPlayers } from "../number-of-players";

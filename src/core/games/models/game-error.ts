@@ -1,4 +1,4 @@
-import { having, Infer, unionOf } from "@/common/union";
+import { having, Infer, unionOf } from "@/core/common/union";
 
 export const GameErrors = unionOf({
   invalidCardsPerPlayer: having<{ actualValue: number, maximumValue: number }>(),

@@ -1,5 +1,5 @@
-import { CoreError, CoreErrors } from "@/common/core-error";
-import { Result } from "@/common/result";
+import { CoreError, CoreErrors } from "@/core/common/core-error";
+import { Result } from "@/core/common/result";
 import { z } from "zod";
 
 export const CreateGameRequestSchema = z.object({

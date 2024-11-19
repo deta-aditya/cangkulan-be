@@ -1,8 +1,8 @@
-import { GameWriteRepository } from "@/games/contracts/game-write-repository";
-import { CardsPerPlayer } from "@/games/models/cards-per-player";
-import { NumberOfPlayers } from "@/games/models/number-of-players";
-import { Game } from "@/games/models/game";
-import { Result } from "@/common/result";
+import { GameWriteRepository } from "@/core/games/contracts/game-write-repository";
+import { CardsPerPlayer } from "@/core/games/models/cards-per-player";
+import { NumberOfPlayers } from "@/core/games/models/number-of-players";
+import { Game } from "@/core/games/models/game";
+import { Result } from "@/core/common/result";
 
 import { CreateGameRequest } from "./create-game.request";
 import { CreateGameResponse } from "./create-game.response";

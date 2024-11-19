@@ -8,8 +8,8 @@ import * as Database from './database'
 import * as WebSocket from './websocket'
 import * as Cache from './cache'
 import * as Receptionist from './receptionist'
-import * as GameFactory from './games/gameFactory'
-import * as FindGameById from './games/findGameById'
+import * as GameFactory from './core/games/gameFactory'
+import * as FindGameById from './core/games/findGameById'
 import playerLeave from './webSocketHandlers/playerLeave'
 
 dotenv.config()

@@ -1,4 +1,4 @@
-import { Result } from "@/common/result";
+import { Result } from "@/core/common/result";
 import { GameErrors } from "./game-error";
 
 export class NumberOfPlayers {

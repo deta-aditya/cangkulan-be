@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { Game, GameStates } from "@/games/models/game";
-import { CardsPerPlayer } from "@/games/models/cards-per-player";
-import { NumberOfPlayers } from "@/games/models/number-of-players";
+import { Game, GameStates } from "@/core/games/models/game";
+import { CardsPerPlayer } from "@/core/games/models/cards-per-player";
+import { NumberOfPlayers } from "@/core/games/models/number-of-players";
 import { CreateGame } from "./create-game";
 
 describe('CreateGame', () => {
