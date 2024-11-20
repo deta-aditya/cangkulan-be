@@ -12,12 +12,12 @@ export class CreateGameController implements Controller {
   ) {}
 
   async handle(request: Request, response: Response) {
-    const responseBuilder = ExpressResponder.of(response);
+    const responder = ExpressResponder.of(response);
 
-    parse(request.body)
+    await parse(request.body)
       .toPromise()
       .then(this.createGame.execute)
-      .then(responseBuilder.success)
-      .catch(responseBuilder.failure);
+      .then(responder.success)
+      .catch(responder.failure);
   };
 }

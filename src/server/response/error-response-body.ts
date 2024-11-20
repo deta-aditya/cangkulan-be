@@ -1,6 +1,6 @@
 import { CoreErrors } from "@/core/common/core-error";
-import { ERROR_CODE, ErrorCode } from "./error-code"
 import { GameError, GameErrors } from "@/core/games/models/game-error";
+import { ERROR_CODE, ErrorCode } from "./error-code"
 
 export type ErrorResponseBody = {
   code: ErrorCode;
@@ -8,7 +8,7 @@ export type ErrorResponseBody = {
   loggedMessage?: string;
 };
 
-export const createFromError = (error: unknown) => {
+export const parseFromError = (error: unknown) => {
   if (CoreErrors.isValid(error)) {
     return CoreErrors.match<ErrorResponseBody>(error, {
       gameDomainError: ({ reason }) => createFromGameDomainError(reason),

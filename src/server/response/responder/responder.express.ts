@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { Responder } from "@/core/common/responder";
 import { ERROR_CODE, getStatusCode } from "../error-code";
-import { createFromError } from "../error-response-body";
+import { parseFromError } from "../error-response-body";
 
 export class ExpressResponder implements Responder {
   constructor(
@@ -17,7 +17,7 @@ export class ExpressResponder implements Responder {
   }
 
   failure(error: unknown): void {
-    const body = createFromError(error);
+    const body = parseFromError(error);
     const statusCode = getStatusCode(body.code);
 
     if (body.loggedMessage) {
