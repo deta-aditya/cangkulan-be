@@ -1,7 +1,6 @@
+import { GameId } from "../models/game-id";
 import { Game } from "../models/game/game";
 
-type GameId = string;
-
 export type GameWriteRepository = {
-  saveGame: (game: Game) => Promise<GameId>; 
+  saveGame(game: Game): Promise<GameId>; 
 };

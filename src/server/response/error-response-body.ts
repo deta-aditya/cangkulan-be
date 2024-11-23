@@ -5,10 +5,10 @@ import { ERROR_CODE, ErrorCode } from "./error-code"
 export type ErrorResponseBody = {
   code: ErrorCode;
   message: string;
-  loggedMessage?: string;
+  internalMessage?: string;
 };
 
-export const parseFromError = (error: unknown) => {
+export const parseFromError = (error: unknown): ErrorResponseBody => {
   if (CoreErrors.isValid(error)) {
     return CoreErrors.match<ErrorResponseBody>(error, {
       gameDomainError: ({ reason }) => createFromGameDomainError(reason),
@@ -23,18 +23,18 @@ export const parseFromError = (error: unknown) => {
     return {
       code: ERROR_CODE.unknownError,
       message: 'An internal error has occurred. Please try agian later.',
-      loggedMessage: `The thrown error is not part error CoreError. Here is the message: ${error.message}`,
+      internalMessage: `The thrown error is not part error CoreError. Here is the message: ${error.message}`,
     };
   }
 
   return {
     code: ERROR_CODE.unknownError,
     message: 'An internal error has occurred. Please try agian later.',
-    loggedMessage: `The thrown error has an unknown type. Here is the stringified result: ${String(error)}`,
+    internalMessage: `The thrown error has an unknown type. Here is the stringified result: ${String(error)}`,
   };
 }
 
-export const createFromGameDomainError = (gameError: GameError) => {
+export const createFromGameDomainError = (gameError: GameError): ErrorResponseBody => {
   return GameErrors.match<ErrorResponseBody>(gameError, {
     invalidCardsPerPlayer: ({ actualValue, maximumValue }) => ({
       code: ERROR_CODE.invalidCardsPerPlayer,

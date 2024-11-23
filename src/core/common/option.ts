@@ -6,7 +6,11 @@ export abstract class Option<T> {
   abstract isSome(): this is Some<T>;
   abstract isNone(): this is None<T>;
   abstract toResult<U>(ifNone: () => U): Result<T, U>;
-  abstract bind<U>(binder: (value: T) => Option<U>): Option<U>;
+  abstract and<U>(option: Option<U>): Option<U>;
+  abstract andThen<U>(binder: (value: T) => Option<U>): Option<U>;
+  abstract or(option: Option<T>): Option<T>;
+  abstract orElse(binder: () => Option<T>): Option<T>;
+  abstract peek(peeker: (value: T) => void): Option<T>;
   abstract unwrap(): T;
   abstract unwrapOrElse(ifNone: () => T): T;
   abstract unwrapOrNull(): T | null;
@@ -44,7 +48,7 @@ export abstract class Option<T> {
 class Some<T> implements Option<T> {
   constructor(public readonly value: T) {}
 
-  bind<U>(binder: (value: T) => Option<U>): Option<U> {
+  andThen<U>(binder: (value: T) => Option<U>): Option<U> {
     return binder(this.value);
   }
 
@@ -79,10 +83,27 @@ class Some<T> implements Option<T> {
   unwrapOrNull(): T | null {
     return this.value;
   }
+
+  and<U>(option: Option<U>): Option<U> {
+    return option;
+  }
+
+  or(option: Option<T>): Option<T> {
+    return this;
+  }
+
+  orElse(binder: () => Option<T>): Option<T> {
+    return this;
+  }
+
+  peek(peeker: (value: T) => void): Option<T> {
+    peeker(this.value);
+    return this;
+  }
 }
 
 class None<T> implements Option<T> {
-  bind<U>(binder: (value: T) => Option<U>): Option<U> {
+  andThen<U>(binder: (value: T) => Option<U>): Option<U> {
     return Option.none();
   }
 
@@ -116,5 +137,21 @@ class None<T> implements Option<T> {
 
   unwrapOrNull(): T | null {
     return null;
+  }
+
+  and<U>(option: Option<U>): Option<U> {
+    return Option.none();
+  }
+
+  or(option: Option<T>): Option<T> {
+    return option;
+  }
+
+  orElse(binder: () => Option<T>): Option<T> {
+    return binder();
+  }
+
+  peek(peeker: (value: T) => void): Option<T> {
+    return this;
   }
 }

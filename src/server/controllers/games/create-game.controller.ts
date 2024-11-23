@@ -1,10 +1,7 @@
 import { Request, Response } from "express";
 import { CreateGame, parse } from "@/core/games/workflows/create-game";
 import { ExpressResponder } from "@/server/response/responder";
-
-export type Controller = {
-  handle: (request: Request, response: Response) => Promise<void>;
-}
+import { Controller } from "../controller";
 
 export class CreateGameController implements Controller {
   constructor(

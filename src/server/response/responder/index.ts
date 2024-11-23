@@ -1,1 +1,1 @@
-export * from './responder.express'
+export * from './express-responder'

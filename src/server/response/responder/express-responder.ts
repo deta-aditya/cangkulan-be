@@ -20,8 +20,8 @@ export class ExpressResponder implements Responder {
     const body = parseFromError(error);
     const statusCode = getStatusCode(body.code);
 
-    if (body.loggedMessage) {
-      console.error(body.loggedMessage);
+    if (body.internalMessage) {
+      console.error(body.internalMessage);
     }
 
     this.response.status(statusCode).json({
