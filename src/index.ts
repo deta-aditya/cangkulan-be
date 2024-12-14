@@ -1,51 +1,27 @@
-import express from 'express'
-import dotenv from 'dotenv'
-import createGameHandler from './httpHandlers/createGame'
-import getGameHandler from './httpHandlers/getGame'
+import { MongodbDatabase } from "@/database/mongodb-database.ts";
+import { ExpressHttpServer } from "@/server/adapters/express/express-http-server.ts";
+import { HttpMethods } from "@/server/http/http-method.ts";
+import { CreateGameController } from "@/server/controllers/games/create-game.controller.ts";
+import { CreateGame } from "@/core/games/workflows/create-game/create-game.ts";
+import { DbGameWriteRepository } from "@/database/data-gateway/db-game-write-repository.ts";
+import type { Env } from "@/env.ts";
 
-import playerJoin from './webSocketHandlers/playerJoin'
-import * as Database from './database'
-import * as WebSocket from './websocket'
-import * as Cache from './cache'
-import * as Receptionist from './receptionist'
-import * as GameFactory from './games/gameFactory'
-import * as FindGameById from './games/findGameById'
-import playerLeave from './webSocketHandlers/playerLeave'
+export const main = async (env: Env) => {
+  const database = new MongodbDatabase(env.mongoUri);
 
-dotenv.config()
+  await database.connect();
 
-const database = Database.create({
-  hostname: process.env.DB_HOSTNAME || 'localhost',
-  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
-  database: process.env.DB_NAME || 'cangkulan',
-  username: process.env.DB_USERNAME || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-})
+  const server = new ExpressHttpServer(env.port);
 
-const cache = Cache.create()
+  const gameWriteRepository = new DbGameWriteRepository(database);
 
-const webSocket = WebSocket.create({
-  port: process.env.WS_PORT ? Number(process.env.WS_PORT) : 8080,
-})
+  const createGameController = new CreateGameController(
+    new CreateGame(gameWriteRepository),
+  );
 
-const receptionist = Receptionist.create(webSocket)
+  server.route("/games", (gamesRouter) => {
+    gamesRouter.route("/", HttpMethods.POST, createGameController);
+  });
 
-const gameFactory = GameFactory.create()
-const findGameById = FindGameById.resolve(database, cache, gameFactory)
-
-webSocket.on('player-join', playerJoin(cache, receptionist, findGameById))
-webSocket.on('player-leave', playerLeave(cache, receptionist, findGameById))
-webSocket.listen()
-
-const httpServer = express()
-const port = process.env.PORT || 8000
-
-httpServer.use(express.json())
-
-httpServer.get('/', (req, res) => res.send('Hello, world! This is Cangkulan server'))
-httpServer.post('/games', createGameHandler(cache, database, gameFactory))
-httpServer.get('/games/:id', getGameHandler(findGameById))
-
-httpServer.listen(port, () => {
-  console.log(`[server]: HTTP server is running at http://localhost:${port}`)
-})
+  server.run();
+};
