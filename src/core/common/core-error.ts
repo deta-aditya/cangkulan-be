@@ -1,5 +1,5 @@
-import { GameError } from "@/core/games/models/game-error";
-import { having, Infer, unionOf } from "./union";
+import { GameError } from "@/core/games/models/game-error.ts";
+import { having, Infer, unionOf } from "./union.ts";
 
 export const CoreErrors = unionOf({
   parseRequestError: having<{ message: string }>(),

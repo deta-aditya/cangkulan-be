@@ -4,9 +4,9 @@ import { CardsPerPlayer } from "@/core/games/models/cards-per-player";
 import { NumberOfPlayers } from "@/core/games/models/number-of-players";
 import { CreateGame } from "./create-game";
 
-describe('CreateGame', () => {
-  it('should execute successfully', async () => {
-    const saveGame = vi.fn().mockReturnValue('abc');
+describe("CreateGame", () => {
+  it("should execute successfully", async () => {
+    const saveGame = vi.fn().mockReturnValue("abc");
 
     const createGame = new CreateGame({
       saveGame,
@@ -17,14 +17,14 @@ describe('CreateGame', () => {
       numberOfPlayers: 4,
     });
 
-    expect(response.gameId).toBe('abc');
-    expect(response.nextActions).toStrictEqual(['addPlayer']);
+    expect(response.gameId).toBe("abc");
+    expect(response.nextActions).toStrictEqual(["addPlayer"]);
     expect(saveGame).toHaveBeenCalledWith(
       new Game(GameStates.waitingForPlayers({
         players: [],
         cardsPerPlayer: new CardsPerPlayer(7),
         numberOfPlayers: new NumberOfPlayers(4),
-      })
-    ))
+      })),
+    );
   });
 });

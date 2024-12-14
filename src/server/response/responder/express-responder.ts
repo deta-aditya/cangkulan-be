@@ -5,7 +5,7 @@ import { parseFromError } from "../error-response-body";
 
 export class ExpressResponder implements Responder {
   constructor(
-    private response: Response
+    private response: Response,
   ) {}
 
   static of(response: Response) {

@@ -1,4 +1,4 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient, ServerApiVersion } from "npm:mongodb";
 
 export class MongodbDatabase {
   private client: MongoClient;
@@ -9,16 +9,16 @@ export class MongodbDatabase {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-      }
+      },
     });
   }
 
   async connect() {
     try {
       await this.client.connect();
-      await this.client.db('admin').command({ ping: 1 });
-    } finally {
-      await this.client.close();
+      await this.client.db("admin").command({ ping: 1 });
+    } catch (_err) {
+      console.error(`Error when connecting to MongoDb: ${_err}`);
     }
   }
 

@@ -1,4 +1,4 @@
-import { Result } from "./result";
+import { Result } from "./result.ts";
 
 export abstract class Option<T> {
   abstract map<U>(mapper: (value: T) => U): Option<U>;
@@ -88,11 +88,11 @@ class Some<T> implements Option<T> {
     return option;
   }
 
-  or(option: Option<T>): Option<T> {
+  or(_option: Option<T>): Option<T> {
     return this;
   }
 
-  orElse(binder: () => Option<T>): Option<T> {
+  orElse(_binder: () => Option<T>): Option<T> {
     return this;
   }
 
@@ -103,7 +103,7 @@ class Some<T> implements Option<T> {
 }
 
 class None<T> implements Option<T> {
-  andThen<U>(binder: (value: T) => Option<U>): Option<U> {
+  andThen<U>(_binder: (value: T) => Option<U>): Option<U> {
     return Option.none();
   }
 
@@ -128,7 +128,7 @@ class None<T> implements Option<T> {
   }
 
   unwrap(): T {
-    throw new Error('This Option value is not Some!');
+    throw new Error("This Option value is not Some!");
   }
 
   unwrapOrElse(ifNone: () => T): T {
@@ -139,7 +139,7 @@ class None<T> implements Option<T> {
     return null;
   }
 
-  and<U>(option: Option<U>): Option<U> {
+  and<U>(_option: Option<U>): Option<U> {
     return Option.none();
   }
 
@@ -151,7 +151,7 @@ class None<T> implements Option<T> {
     return binder();
   }
 
-  peek(peeker: (value: T) => void): Option<T> {
+  peek(_peeker: (value: T) => void): Option<T> {
     return this;
   }
 }

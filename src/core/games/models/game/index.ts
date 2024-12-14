@@ -1,3 +1,3 @@
-export * from './game';
-export * from './game.action';
-export * from './game.state';
+export * from "./game.ts";
+export * from "./game.action.ts";
+export * from "./game.state.ts";

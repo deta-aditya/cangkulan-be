@@ -1,27 +1,37 @@
 export type UnionShape = Record<string, unknown>;
 
 export type Union<T extends UnionShape> = {
-  [C in keyof T]: { kind: C } & (T[C] extends void ? Record<string, unknown> : T[C]);
+  [C in keyof T]:
+    & { kind: C }
+    & (T[C] extends void ? Record<string, unknown> : T[C]);
 }[keyof T];
 
 export type Kinds<T extends UnionShape> = Array<keyof T>;
 
 export type UnionCaseConstructors<T extends UnionShape> = {
-  [C in keyof T]: T[C] extends void ? () => Union<T> : (values: T[C]) => Union<T>;
+  [C in keyof T]: T[C] extends void ? () => Union<T>
+    : (values: T[C]) => Union<T>;
 };
 
 export type UnionCaseTypeGuards<T extends UnionShape> = {
-  [C in keyof T as `is${Capitalize<string & C>}`]: (union: Union<T>) => union is Extract<Union<T>, { kind: C }>;
+  [C in keyof T as `is${Capitalize<string & C>}`]: (
+    union: Union<T>,
+  ) => union is Extract<Union<T>, { kind: C }>;
 };
 
 export type UnionMatcherCases<T extends UnionShape, U> = {
   [V in keyof T]: T[V] extends void ? () => U : (carriedValue: T[V]) => U;
 };
 
-export type UnionMatcher<T extends UnionShape> = <U>(union: Union<T>, cases: UnionMatcherCases<T, U>) => U;
+export type UnionMatcher<T extends UnionShape> = <U>(
+  union: Union<T>,
+  cases: UnionMatcherCases<T, U>,
+) => U;
 
-export type UnionOf<T extends UnionShape> = UnionCaseConstructors<T> &
-  UnionCaseTypeGuards<T> & {
+export type UnionOf<T extends UnionShape> =
+  & UnionCaseConstructors<T>
+  & UnionCaseTypeGuards<T>
+  & {
     shape: T;
     kinds: () => Kinds<T>;
     isValid: (value: unknown) => value is Union<T>;
@@ -34,7 +44,10 @@ const createCaseConstructors = <T extends UnionShape>(shape: T) => {
   const shapeEntries = Object.entries(shape);
 
   const constructorEntries = shapeEntries.map(([kind, carriedValues]) => {
-    const constructorFn = (params: typeof carriedValues) => ({ kind, ...(params ? params : {}) });
+    const constructorFn = (params: typeof carriedValues) => ({
+      kind,
+      ...(params ? params : {}),
+    });
     return [kind, constructorFn];
   });
 
@@ -45,9 +58,13 @@ const createCaseTypeGuards = <T extends UnionShape>(shape: T) => {
   const shapeKeys = Object.keys(shape);
 
   const typeGuardEntries = shapeKeys.map((kind) => {
-    const functionName = `is${kind.charAt(0).toUpperCase()}${kind.substring(1)}`;
+    const functionName = `is${kind.charAt(0).toUpperCase()}${
+      kind.substring(1)
+    }`;
 
-    const theFunction = (param: Union<T>): param is Extract<Union<T>, { kind: typeof kind }> => {
+    const theFunction = (
+      param: Union<T>,
+    ): param is Extract<Union<T>, { kind: typeof kind }> => {
       return param.kind === kind;
     };
 
@@ -110,7 +127,10 @@ export const unionOf = <T extends UnionShape>(shape: T): UnionOf<T> => {
       value !== null &&
       "kind" in value &&
       kinds().includes(String(value.kind)) &&
-      Object.values(typeGuards).reduce((acc, typeGuard) => acc || typeGuard(value), false)
+      Object.values(typeGuards).reduce(
+        (acc, typeGuard) => acc || typeGuard(value),
+        false,
+      )
     );
   };
 

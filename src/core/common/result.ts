@@ -3,11 +3,11 @@
 // };
 type LiftParams<T, U> = T extends Array<infer V> ? Array<Result<V, U>> : [];
 
-type OkCase<T extends Result<unknown, unknown>> = 
-  T extends Result<infer U, unknown> ? U : never;
+type OkCase<T extends Result<unknown, unknown>> = T extends
+  Result<infer U, unknown> ? U : never;
 
-type ErrCase<T extends Result<unknown, unknown>> = 
-  T extends Result<unknown, infer U> ? U : never;
+type ErrCase<T extends Result<unknown, unknown>> = T extends
+  Result<unknown, infer U> ? U : never;
 
 export abstract class Result<T, U> {
   abstract map<S>(mapper: (value: T) => S): Result<S, U>;
@@ -31,13 +31,14 @@ export abstract class Result<T, U> {
   }
 
   static collectArray<T, U>(array: Array<Result<T, U>>): Result<Array<T>, U> {
-    return array.reduce((acc, item) =>
-      acc.andThen((currentArrayValue) =>
-        item.match({
-          err: (errValue) => Result.err<Array<T>, U>(errValue),
-          ok: (okValue) => Result.ok([...currentArrayValue, okValue]),
-        }),
-      ),
+    return array.reduce(
+      (acc, item) =>
+        acc.andThen((currentArrayValue) =>
+          item.match({
+            err: (errValue) => Result.err<Array<T>, U>(errValue),
+            ok: (okValue) => Result.ok([...currentArrayValue, okValue]),
+          })
+        ),
       Result.ok<Array<T>, U>([]),
     );
   }
@@ -54,8 +55,9 @@ export abstract class Result<T, U> {
         return acc.andThen((currentObjectValue) =>
           value.match({
             err: (errValue) => Result.err<T, U>(errValue),
-            ok: (okValue) => Result.ok({ ...currentObjectValue, [key]: okValue }),
-          }),
+            ok: (okValue) =>
+              Result.ok({ ...currentObjectValue, [key]: okValue }),
+          })
         );
       },
       Result.ok<T, U>({} as T),
@@ -63,11 +65,14 @@ export abstract class Result<T, U> {
   }
 
   static liftBind<
+    // deno-lint-ignore no-explicit-any
     T extends (...args: any[]) => Result<any, V>,
-    U extends Parameters<T>, 
+    U extends Parameters<T>,
     V,
   >(func: T, ...params: LiftParams<U, V>): ReturnType<T> {
-    return this.collectArray(params).andThen(params => func(...params)) as ReturnType<T>;
+    return this.collectArray(params).andThen((params) =>
+      func(...params)
+    ) as ReturnType<T>;
   }
 
   static try<T>(errorneusProcess: () => T): Result<T, unknown> {
@@ -123,14 +128,14 @@ class Ok<T, U> implements Result<T, U> {
   }
 
   unwrapErr(): U {
-    throw new Error('This Result value is not Err!');
+    throw new Error("This Result value is not Err!");
   }
 
   unwrapErrOrElse(ifOk: () => U): U {
     return ifOk();
   }
 
-  unwrapOrElse(ifErr: () => T): T {
+  unwrapOrElse(_ifErr: () => T): T {
     return this.value;
   }
 }
@@ -167,14 +172,14 @@ class Err<T, U> implements Result<T, U> {
   }
 
   unwrap(): T {
-    throw new Error('This Result value is not Ok!');
+    throw new Error("This Result value is not Ok!");
   }
-  
+
   unwrapErr(): U {
     return this.value;
   }
 
-  unwrapErrOrElse(ifOk: () => U): U {
+  unwrapErrOrElse(_ifOk: () => U): U {
     return this.value;
   }
 
