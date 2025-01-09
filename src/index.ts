@@ -1,9 +1,8 @@
 import { MongodbDatabase } from "@/database/mongodb-database.ts";
-import { ExpressHttpServer } from "@/server/adapters/express/express-http-server.ts";
-import { HttpMethods } from "@/server/http/http-method.ts";
-import { CreateGameController } from "@/server/controllers/games/create-game.controller.ts";
-import { CreateGame } from "@/core/games/workflows/create-game/create-game.ts";
-import { DbGameWriteRepository } from "@/database/data-gateway/db-game-write-repository.ts";
+import { DbCangkulanRepositories } from "@/database/repositories/db-cangkulan-repositories.ts";
+import { ExpressHttpServer } from "./framework/http/adapters/express/express-http-server.ts";
+import { CangkulanServer } from "./server/cangkulan-server.ts";
+import { CangkulanCore } from "@/core/cangkulan-core.ts";
 import type { Env } from "@/env.ts";
 
 export const main = async (env: Env) => {
@@ -11,17 +10,14 @@ export const main = async (env: Env) => {
 
   await database.connect();
 
-  const server = new ExpressHttpServer(env.port);
+  const databaseRepositories = new DbCangkulanRepositories(database);
 
-  const gameWriteRepository = new DbGameWriteRepository(database);
+  const core = new CangkulanCore(databaseRepositories);
 
-  const createGameController = new CreateGameController(
-    new CreateGame(gameWriteRepository),
-  );
+  const cangkulanServer = new CangkulanServer(core);
+  const httpServer = new ExpressHttpServer(env.port);
 
-  server.route("/games", (gamesRouter) => {
-    gamesRouter.route("/", HttpMethods.POST, createGameController);
-  });
+  cangkulanServer.registerControllers(httpServer);
 
-  server.run();
+  httpServer.run();
 };

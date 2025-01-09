@@ -1,8 +1,8 @@
 import express from "npm:express";
 import type { IRouter } from "npm:@types/express@4.17.17";
-import type { ExpressHttpRouteAdapter } from "@/server/adapters/express/express-http-route-adapter.ts";
-import { ExpressHttpRouter } from "@/server/adapters/express/express-http-router.ts";
-import type { HttpRouter } from "@/server/http/http-router.ts";
+import type { HttpRouter } from "@/framework/http.ts";
+import { ExpressHttpRouter } from "./express-http-router.ts";
+import type { ExpressHttpRouteAdapter } from "./express-http-route-adapter.ts";
 
 export class ExpressHttpRouteFunctionAdapter
   implements ExpressHttpRouteAdapter {
