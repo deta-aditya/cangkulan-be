@@ -1,4 +1,4 @@
-import { MongodbDatabase } from "@/database/mongodb-database.ts";
+import { MongodbDatabase } from "./framework/database/mongodb-database.ts";
 import { DbCangkulanRepositories } from "@/database/repositories/db-cangkulan-repositories.ts";
 import { ExpressHttpServer } from "./framework/http/adapters/express/express-http-server.ts";
 import { CangkulanServer } from "./server/cangkulan-server.ts";
