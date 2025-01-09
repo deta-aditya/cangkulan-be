@@ -1,9 +1,6 @@
 import express from "npm:express";
 import { type Express } from "npm:@types/express@4.17.17";
-import { type HttpServer } from "@/server/http/http-server.ts";
-import { type HttpController } from "@/server/http/http-controller.ts";
-import { type HttpMethod } from "@/server/http/http-method.ts";
-import { type HttpRouter } from "@/server/http/http-router.ts";
+import type { HttpController, HttpMethod, HttpRouter, HttpServer } from "@/framework/http.ts";
 import { ExpressHttpRouter } from "./express-http-router.ts";
 
 export class ExpressHttpServer implements HttpServer {

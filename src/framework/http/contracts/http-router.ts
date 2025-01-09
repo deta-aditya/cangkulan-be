@@ -1,5 +1,5 @@
-import type { HttpMethod } from "@/server/http/http-method.ts";
-import type { HttpController } from "@/server/http/http-controller.ts";
+import type { HttpMethod } from "./http-method.ts";
+import type { HttpController } from "./http-controller.ts";
 
 export interface HttpRouter {
   route(

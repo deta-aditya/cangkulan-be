@@ -1,5 +1,5 @@
 import type { CangkulanRepositories } from "@/core/cangkulan-repositories.ts";
-import type { MongodbDatabase } from "@/database/mongodb-database.ts";
+import type { MongodbDatabase } from "@/framework/database/mongodb-database.ts";
 import { DbGameWriteRepository } from "@/database/repositories/db-game-write-repository.ts";
 
 export class DbCangkulanRepositories implements CangkulanRepositories {

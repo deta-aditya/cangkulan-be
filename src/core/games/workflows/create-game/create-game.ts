@@ -4,13 +4,18 @@ import { NumberOfPlayers } from "@/core/games/models/number-of-players.ts";
 import { Game } from "@/core/games/models/game/index.ts";
 import { Result } from "@/core/common/result.ts";
 
-import { CreateGameRequest } from "./create-game.request.ts";
+import { CreateGameRequest, parse } from "./create-game.request.ts";
 import { CreateGameResponse } from "./create-game.response.ts";
+import type { CoreError } from "@/core/common/core-error.ts";
 
 export class CreateGame {
   constructor(
     private writeRepository: GameWriteRepository,
   ) {}
+
+  parseRequest(request: unknown): Result<CreateGameRequest, CoreError> {
+    return parse(request);
+  }
 
   async execute(request: CreateGameRequest): Promise<CreateGameResponse> {
     const cardsPerPlayer = CardsPerPlayer.create(request.cardsPerPlayer);

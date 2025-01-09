@@ -1,7 +1,7 @@
 import { MongodbDatabase } from "@/database/mongodb-database.ts";
 import { DbCangkulanRepositories } from "@/database/repositories/db-cangkulan-repositories.ts";
-import { ExpressHttpServer } from "@/server/adapters/express/express-http-server.ts";
-import { CangkulanControllers } from "@/server/controllers/cangkulan-controllers.ts";
+import { ExpressHttpServer } from "./framework/http/adapters/express/express-http-server.ts";
+import { CangkulanServer } from "./server/cangkulan-server.ts";
 import { CangkulanCore } from "@/core/cangkulan-core.ts";
 import type { Env } from "@/env.ts";
 
@@ -14,10 +14,10 @@ export const main = async (env: Env) => {
 
   const core = new CangkulanCore(databaseRepositories);
 
-  const rootControllers = new CangkulanControllers(core);
-  const server = new ExpressHttpServer(env.port);
+  const cangkulanServer = new CangkulanServer(core);
+  const httpServer = new ExpressHttpServer(env.port);
 
-  rootControllers.mapControllersToServer(server);
+  cangkulanServer.registerControllers(httpServer);
 
-  server.run();
+  httpServer.run();
 };

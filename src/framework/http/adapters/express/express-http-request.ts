@@ -1,5 +1,5 @@
 import type { Request } from "npm:@types/express@4.17.17";
-import type { HttpRequest } from "@/server/http/http-request.ts";
+import type { HttpRequest } from "@/framework/http.ts";
 import type { Json } from "@/core/common/json.ts";
 import { Option } from "@/core/common/option.ts";
 
