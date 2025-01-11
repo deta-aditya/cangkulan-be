@@ -1,6 +1,6 @@
 import type { ZodType } from "npm:zod";
 import { Result } from "@/core/common/result.ts";
-import { CoreErrors, type CoreError } from "@/core/common/core-error.ts";
+import { CoreError } from "@/core/common/core-error.ts";
 
 class SchemaParserReadyForParse<T> {
   constructor(
@@ -13,7 +13,7 @@ class SchemaParserReadyForParse<T> {
       return Result.ok(parsedRequest.data);
     }
     return Result.err(
-      CoreErrors.parseRequestError({ message: parsedRequest.error.message }),
+      CoreError.of.parseRequestError({ message: parsedRequest.error.message }),
     );
   }
 }

@@ -29,7 +29,9 @@ export class ExpressHttpControllerAdapter implements ExpressHttpRouteAdapter {
         let responseBody = response.body;
         if (response.status === HttpStatuses.InternalServerError) {
           console.error(response.body);
-          responseBody = 'An internal server error has occured. Please try again later.';
+          responseBody = {
+            message: 'An internal server error has occured. Please try again later.'
+          };
         }
 
         expressResponse.status(response.status).json(responseBody);

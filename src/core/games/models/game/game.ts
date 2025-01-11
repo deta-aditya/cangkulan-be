@@ -16,22 +16,19 @@ export class Game {
     cardsPerPlayer: CardsPerPlayer,
     numberOfPlayers: NumberOfPlayers,
   ): Result<Game, GameError> {
-    return Result.validate(
-      cardsPerPlayer.value * numberOfPlayers.value <= Game.TOTAL_CARDS,
-      () =>
-        new Game(
-          GameStates.waitingForPlayers({
-            cardsPerPlayer,
-            numberOfPlayers,
-            players: [],
-          }),
-        ),
-      () =>
-        GameErrors.invalidPlayersAndCardsCombination({
-          cardsPerPlayer: cardsPerPlayer.value,
-          numberOfPlayers: numberOfPlayers.value,
-        }),
-    );
+    const isCombinationValid = cardsPerPlayer.value * numberOfPlayers.value <= Game.TOTAL_CARDS;
+    const gameState = GameStates.waitingForPlayers({
+      cardsPerPlayer,
+      numberOfPlayers,
+      players: [],
+    });
+
+    return Result.validate(gameState, isCombinationValid)
+      .map((gameState) => new Game(gameState))
+      .mapErr(() => GameErrors.invalidPlayersAndCardsCombination({
+        cardsPerPlayer: cardsPerPlayer.value,
+        numberOfPlayers: numberOfPlayers.value,
+      }));
   }
 
   get possibleNextActions(): GameAction["kind"][] {

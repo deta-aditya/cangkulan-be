@@ -84,11 +84,11 @@ export abstract class Result<T, U> {
     }
   }
 
-  static validate<T, U>(condition: boolean, ifTrue: () => T, ifFalse: () => U) {
+  static validate<T>(value: T, condition: boolean) {
     if (condition) {
-      return Result.ok<T, U>(ifTrue());
+      return Result.ok<T, null>(value);
     }
-    return Result.err<T, U>(ifFalse());
+    return Result.err<T, null>(null);
   }
 }
 

@@ -1,4 +1,4 @@
-import { having, Infer, unionOf } from "../../common/union.ts";
+import { having, Infer, unionOf } from "@/core/common/union.ts";
 
 export const GameErrors = unionOf({
   invalidCardsPerPlayer: having<
