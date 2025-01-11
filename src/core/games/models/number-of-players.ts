@@ -9,14 +9,15 @@ export class NumberOfPlayers {
   static MAXIMUM_VALUE = 6;
 
   static create(value: number) {
-    return Result.validate(
-      value > 0 && value <= NumberOfPlayers.MAXIMUM_VALUE,
-      () => new NumberOfPlayers(value),
-      () =>
-        GameErrors.invalidNumberOfPlayers({
-          actualValue: value,
-          maximumValue: NumberOfPlayers.MAXIMUM_VALUE,
-        }),
-    );
+    const valueIsInteger = Number.isInteger(value);
+    const valueIsOnRange = value > 0 && value <= NumberOfPlayers.MAXIMUM_VALUE;
+    const valueIsValid = valueIsInteger && valueIsOnRange;
+
+    return Result.validate(value, valueIsValid)
+      .map(value => new NumberOfPlayers(value))
+      .mapErr(() => GameErrors.invalidNumberOfPlayers({
+        actualValue: value,
+        maximumValue: NumberOfPlayers.MAXIMUM_VALUE,
+      }));
   }
 }

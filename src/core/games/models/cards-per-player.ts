@@ -9,14 +9,15 @@ export class CardsPerPlayer {
   static MAXIMUM_VALUE = 9;
 
   static create(value: number) {
-    return Result.validate(
-      value > 0 && value <= CardsPerPlayer.MAXIMUM_VALUE,
-      () => new CardsPerPlayer(value),
-      () =>
-        GameErrors.invalidCardsPerPlayer({
-          actualValue: value,
-          maximumValue: CardsPerPlayer.MAXIMUM_VALUE,
-        }),
-    );
+    const valueIsInteger = Number.isInteger(value);
+    const valueIsOnRange = value > 0 && value <= CardsPerPlayer.MAXIMUM_VALUE;
+    const valueIsValid = valueIsInteger && valueIsOnRange;
+
+    return Result.validate(value, valueIsValid)
+      .map(value => new CardsPerPlayer(value))
+      .mapErr(() => GameErrors.invalidCardsPerPlayer({
+        actualValue: value,
+        maximumValue: CardsPerPlayer.MAXIMUM_VALUE,
+      }));
   }
 }
