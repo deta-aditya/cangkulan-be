@@ -1,16 +1,17 @@
 import { describe, it } from "jsr:@std/testing/bdd";
 import { expect } from "jsr:@std/expect";
 import { CreateGame } from "@/core/games/workflows/create-game/create-game.ts";
-import { GameStates } from "@/core/games/models/game/game.state.ts";
 import { CardsPerPlayer } from "@/core/games/models/cards-per-player.ts";
 import { NumberOfPlayers } from "@/core/games/models/number-of-players.ts";
 import type { GameWriteRepository } from "@/core/games/contracts/game-write-repository.ts";
 import { CoreError } from "@/core/common/core-error.ts";
 import { GameErrors } from "@/core/games/models/game-error.ts";
-import type { Game } from "@/core/games/models/game/game.ts";
+import type { Game } from "@/core/games/models/game.ts";
+import { GameStates } from "@/core/games/models/game-state.ts";
+import { Future } from "@/core/common/future.ts";
 
 const MOCK_GAME_WRITE_REPOSITORY: GameWriteRepository = {
-  saveGame: () => Promise.resolve('xyz')
+  saveGame: () => Future.ofResolve('xyz'),
 };
 
 const TEST_CASES = {
@@ -20,7 +21,9 @@ const TEST_CASES = {
       ...MOCK_GAME_WRITE_REPOSITORY,
       saveGame: (game: Game) => {
         expect(game.state).toMatchObject(GameStates.waitingForPlayers({
-          players: [],
+          players: [
+            { name: 'John Doe' },
+          ],
           cardsPerPlayer: new CardsPerPlayer(7),
           numberOfPlayers: new NumberOfPlayers(5),
         }));
@@ -28,6 +31,7 @@ const TEST_CASES = {
       }
     },
     request: {
+      playerName: 'John Doe',
       cardsPerPlayer: 7,
       numberOfPlayers: 5,
     },
@@ -40,6 +44,7 @@ const TEST_CASES = {
     kind: 'failure',
     gameWriteRepository: MOCK_GAME_WRITE_REPOSITORY,
     request: {
+      playerName: 'John Doe',
       cardsPerPlayer: 10,
       numberOfPlayers: 5,
     },
@@ -54,6 +59,7 @@ const TEST_CASES = {
     kind: 'failure',
     gameWriteRepository: MOCK_GAME_WRITE_REPOSITORY,
     request: {
+      playerName: 'John Doe',
       cardsPerPlayer: 7,
       numberOfPlayers: 10,
     },
@@ -68,6 +74,7 @@ const TEST_CASES = {
     kind: 'failure',
     gameWriteRepository: MOCK_GAME_WRITE_REPOSITORY,
     request: {
+      playerName: 'John Doe',
       cardsPerPlayer: 9,
       numberOfPlayers: 6,
     },
@@ -84,7 +91,7 @@ describe('CreateGame', () => {
   for (const [should, testConfig] of Object.entries(TEST_CASES)) {
     it(should, () => {
       const createGame = new CreateGame(testConfig.gameWriteRepository);
-      const response = createGame.execute(testConfig.request);
+      const response = createGame.execute(testConfig.request).toPromise();
       
       if (testConfig.kind === 'success') {
         expect(response).resolves.toStrictEqual(testConfig.response);

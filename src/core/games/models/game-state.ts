@@ -9,6 +9,11 @@ export const GameStates = unionOf({
     numberOfPlayers: NumberOfPlayers;
     cardsPerPlayer: CardsPerPlayer;
   }>(),
+  readyToPlay: having<{
+    players: Player[];
+    numberOfPlayers: NumberOfPlayers;
+    cardsPerPlayer: CardsPerPlayer;
+  }>(),
 });
 
 export type GameState = Infer<typeof GameStates>;

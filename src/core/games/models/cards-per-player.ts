@@ -1,23 +1,38 @@
-import { GameErrors } from "./game-error.ts";
-import { Result } from "@/core/common/result.ts";
+import { GameErrors } from "@/core/games/models/game-error.ts";
+import { Integer } from "@/core/common/number.ts";
+import { Option } from "@/core/common/option.ts";
 
-export class CardsPerPlayer {
-  constructor(
-    readonly value: number,
-  ) {}
+export class CardsPerPlayer extends Integer {
+  constructor(readonly value: number) {
+    super();
+  }
 
   static MAXIMUM_VALUE = 9;
 
   static create(value: number) {
-    const valueIsInteger = Number.isInteger(value);
-    const valueIsOnRange = value > 0 && value <= CardsPerPlayer.MAXIMUM_VALUE;
-    const valueIsValid = valueIsInteger && valueIsOnRange;
+    return Option
+      .some(value)
+      .filter(isValueValid)
+      .map(createCardsPerPlayer)
+      .toResult(createGameError(value));
+  }
 
-    return Result.validate(value, valueIsValid)
-      .map(value => new CardsPerPlayer(value))
-      .mapErr(() => GameErrors.invalidCardsPerPlayer({
-        actualValue: value,
-        maximumValue: CardsPerPlayer.MAXIMUM_VALUE,
-      }));
+  int(): number {
+    return this.value;  
   }
 }
+
+const isValueValid = (value: number) => {
+  const valueIsInteger = Number.isInteger(value);
+  const valueIsOnRange = value > 0 && value <= CardsPerPlayer.MAXIMUM_VALUE;
+  return valueIsInteger && valueIsOnRange;
+};
+
+const createCardsPerPlayer = (value: number) => 
+  new CardsPerPlayer(value)  
+
+const createGameError = (actualValue: number) => () => 
+  GameErrors.invalidCardsPerPlayer({
+    actualValue: actualValue,
+    maximumValue: CardsPerPlayer.MAXIMUM_VALUE,
+  });

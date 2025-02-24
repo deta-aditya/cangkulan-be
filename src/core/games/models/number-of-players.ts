@@ -1,23 +1,38 @@
-import { Result } from "@/core/common/result.ts";
-import { GameErrors } from "./game-error.ts";
+import { GameErrors } from "@/core/games/models/game-error.ts";
+import { Integer } from "@/core/common/number.ts";
+import { Option } from "@/core/common/option.ts";
 
-export class NumberOfPlayers {
-  constructor(
-    readonly value: number,
-  ) {}
+export class NumberOfPlayers extends Integer {
+  constructor(readonly value: number) {
+    super()
+  }
 
   static MAXIMUM_VALUE = 6;
 
   static create(value: number) {
-    const valueIsInteger = Number.isInteger(value);
-    const valueIsOnRange = value > 0 && value <= NumberOfPlayers.MAXIMUM_VALUE;
-    const valueIsValid = valueIsInteger && valueIsOnRange;
+    return Option
+      .some(value)
+      .filter(isValueValid)
+      .map(createNumberOfPlayers)
+      .toResult(createGameError(value));
+  }
 
-    return Result.validate(value, valueIsValid)
-      .map(value => new NumberOfPlayers(value))
-      .mapErr(() => GameErrors.invalidNumberOfPlayers({
-        actualValue: value,
-        maximumValue: NumberOfPlayers.MAXIMUM_VALUE,
-      }));
+  int(): number {
+    return this.value;  
   }
 }
+
+const isValueValid = (value: number) => {
+  const valueIsInteger = Number.isInteger(value);
+  const valueIsOnRange = value > 0 && value <= NumberOfPlayers.MAXIMUM_VALUE;
+  return valueIsInteger && valueIsOnRange;
+};
+
+const createNumberOfPlayers = (value: number) =>
+  new NumberOfPlayers(value);
+
+const createGameError = (actualValue: number) => () =>
+  GameErrors.invalidNumberOfPlayers({
+    actualValue: actualValue,
+    maximumValue: NumberOfPlayers.MAXIMUM_VALUE,
+  });

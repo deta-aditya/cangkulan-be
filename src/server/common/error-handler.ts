@@ -12,6 +12,10 @@ export class ErrorHandler {
           status: HttpStatuses.BadRequest, 
           body: { code: error.variant.kind, message }, 
         }),
+        dataGatewayError: ({ message }) => ({
+          status: HttpStatuses.InternalServerError,
+          body: { code: error.variant.kind, message },
+        })
       });
     }
 
@@ -55,6 +59,13 @@ export class ErrorHandler {
         body: {
           code: error.kind,
           message: `Invalid number of players and cards combination. Reduce one of them, so each players can start with enough cards (Given value, cards: ${cardsPerPlayer}, players: ${numberOfPlayers}).`,
+        }
+      }),
+      gameNotFound: ({ gameId }) => ({
+        status: HttpStatuses.BadRequest,
+        body: {
+          code: error.kind,
+          message: `Game with ID of ${gameId} does not exist!` 
         }
       })
     })

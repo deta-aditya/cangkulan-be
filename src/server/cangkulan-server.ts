@@ -1,9 +1,10 @@
 import type { CangkulanCore } from "@/core/cangkulan-core.ts";
 import { HttpMethods, type HttpServer } from "@/framework/http.ts";
-import { CreateGameController } from "./controllers/games/create-game.controller.ts";
 import { SchemaParser } from "@/server/common/schema-parser.ts";
 import { ErrorHandler } from "@/server/common/error-handler.ts";
 import { BaseController } from "@/server/common/base-controller.ts";
+
+import { CreateGameController } from "@/server/controllers/games/create-game.controller.ts";
 
 export class CangkulanServer {
   private baseController: BaseController;

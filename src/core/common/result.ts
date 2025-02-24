@@ -1,6 +1,5 @@
-// type LiftParams<T, U> = {
-//   [I in keyof T]: Result<T[I], U>;
-// };
+import { Future } from "@/core/common/future.ts";
+
 type LiftParams<T, U> = T extends Array<infer V> ? Array<Result<V, U>> : [];
 
 type OkCase<T extends Result<unknown, unknown>> = T extends
@@ -21,6 +20,8 @@ export abstract class Result<T, U> {
   abstract unwrapErr(): U;
   abstract unwrapOrElse(ifErr: () => T): T;
   abstract unwrapErrOrElse(ifOk: () => U): U;
+  abstract extractPromise<V>(this: Result<Promise<V>, U>): Promise<Result<V, U>>;
+  abstract toFuture(): Future<T, U>;
 
   static ok<T, U>(value: T): Result<T, U> {
     return new Ok<T, U>(value);
@@ -138,6 +139,15 @@ class Ok<T, U> implements Result<T, U> {
   unwrapOrElse(_ifErr: () => T): T {
     return this.value;
   }
+
+  extractPromise<V>(this: Result<Promise<V>, U>): Promise<Result<V, U>> {
+    const promise = this.unwrap();
+    return promise.then(value => Result.ok(value));
+  }
+
+  toFuture(): Future<T, U> {
+    return Future.of(() => this.toPromise());
+  }
 }
 
 class Err<T, U> implements Result<T, U> {
@@ -185,5 +195,14 @@ class Err<T, U> implements Result<T, U> {
 
   unwrapOrElse(ifErr: () => T): T {
     return ifErr();
+  }
+
+  extractPromise<V>(this: Result<Promise<V>, U>): Promise<Result<V, U>> {
+    const err = this.unwrapErr();
+    return Promise.resolve(Result.err(err));
+  }
+
+  toFuture(): Future<T, U> {
+    return Future.of(() => this.toPromise());
   }
 }

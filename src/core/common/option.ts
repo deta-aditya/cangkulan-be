@@ -1,3 +1,4 @@
+import { Future } from "@/core/common/future.ts";
 import { Result } from "./result.ts";
 
 export abstract class Option<T> {
@@ -14,6 +15,8 @@ export abstract class Option<T> {
   abstract unwrap(): T;
   abstract unwrapOrElse(ifNone: () => T): T;
   abstract unwrapOrNull(): T | null;
+  abstract filter(predicate: (value: T) => boolean): Option<T>;
+  abstract transposeFuture<U, V>(this: Option<Future<U, V>>): Future<Option<U>, V>; 
 
   static some<T>(value: T) {
     return new Some(value);
@@ -23,7 +26,7 @@ export abstract class Option<T> {
     return new None<T>();
   }
 
-  static fromNullable<T>(value: T | null | undefined) {
+  static fromNullable<T>(value: T | null | undefined): Option<T> {
     if (value === null || value === undefined) {
       return Option.none<T>();
     }
@@ -100,6 +103,15 @@ class Some<T> implements Option<T> {
     peeker(this.value);
     return this;
   }
+
+  filter(predicate: (value: T) => boolean): Option<T> {
+    return predicate(this.value) ? this : Option.none();  
+  }
+
+  transposeFuture<U, V>(this: Option<Future<U, V>>): Future<Option<U>, V> {
+    const future = this.unwrap();
+    return future.map(value => Option.some(value));
+  }
 }
 
 class None<T> implements Option<T> {
@@ -153,5 +165,13 @@ class None<T> implements Option<T> {
 
   peek(_peeker: (value: T) => void): Option<T> {
     return this;
+  }
+
+  filter(_predicate: (value: T) => boolean): Option<T> {
+    return this;
+  }
+
+  transposeFuture<U, V>(this: Option<Future<U, V>>): Future<Option<U>, V> {
+    return Future.ofResolve(Option.none());
   }
 }

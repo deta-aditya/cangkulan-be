@@ -1,1 +1,3 @@
-export type Player = Record<string, unknown>;
+export type Player = {
+  name: string;
+};

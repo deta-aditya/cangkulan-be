@@ -1,12 +1,15 @@
 import { CreateGame } from "@/core/games/workflows/create-game/create-game.ts";
+import { AddPlayer } from "@/core/games/workflows/add-player/add-player.ts";
 import type { CangkulanRepositories } from "@/core/cangkulan-repositories.ts";
 
 export class CangkulanCore {
-  constructor(
-    private repositories: CangkulanRepositories,
-  ) {}
+  public readonly createGame: CreateGame;
+  public readonly addPlayer: AddPlayer;
 
-  get createGame() {
-    return new CreateGame(this.repositories.gameWrite);
+  constructor(
+    repositories: CangkulanRepositories,
+  ) {
+    this.createGame = new CreateGame(repositories.gameWrite);
+    this.addPlayer = new AddPlayer(repositories.gameRead, repositories.gameWrite);
   }
 }

@@ -13,11 +13,7 @@ export class BaseController {
     return this.schemaParser.ofSchema(schema);
   }
 
-  async handleError(handler: () => Promise<HttpResponse>): Promise<HttpResponse> {
-    try {
-      return await handler();
-    } catch (error) {
-      return this.errorHandler.handle(error);
-    }
+  handleError(error: unknown): HttpResponse {
+    return this.errorHandler.handle(error);
   }
 }
